@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { Suspense, useMemo, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { ChevronLeft, Search } from "lucide-react"
@@ -12,8 +12,23 @@ import type { ServiceItem } from "@/lib/types"
 export default function OrderPage() {
     return (
         <PageLayout>
-            <OrderContent />
+            <Suspense fallback={<OrderPageFallback />}>
+                <OrderContent />
+            </Suspense>
         </PageLayout>
+    )
+}
+
+function OrderPageFallback() {
+    return (
+        <div className="space-y-4">
+            <div className="h-10 w-64 bg-slate-900/40 border border-slate-800/40 rounded animate-pulse" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, index) => (
+                    <div key={index} className="h-72 bg-slate-900/40 border border-slate-800/40 rounded-lg animate-pulse" />
+                ))}
+            </div>
+        </div>
     )
 }
 
