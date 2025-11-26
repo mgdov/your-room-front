@@ -50,18 +50,19 @@ export function Header({
       <HeaderAction
         href={topUpHref}
         onClick={onTopUpClick}
-        label={<span className="text-white font-medium">{formattedBalance}</span>}
+        label={<span className="text-white text-sm font-medium text-center md:text-base">{formattedBalance}</span>}
         icon={<Plus className="w-4 h-4" />}
         iconLabel="Пополнить"
         iconLabelClassName="text-green-400"
+        className="flex-1 md:flex-initial"
       />
       {discountLabel && (
         <Link
           href={discountHref}
-          className="flex items-center gap-2 bg-slate-900/50 px-4 py-2.5 rounded-lg border border-slate-800 hover:border-slate-700 transition-colors"
+          className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-slate-800 bg-slate-900/50 px-4 py-2.5 text-sm transition-colors hover:border-slate-700 md:flex-initial md:px-5 md:py-3 md:text-base"
         >
-          <span className="text-white font-medium">{discountLabel}</span>
-          <div className="bg-linear-to-r from-purple-500 to-pink-500 text-white px-2.5 py-1 rounded-md text-sm font-bold">
+          <span className="text-white text-sm font-medium text-center md:text-base">{discountLabel}</span>
+          <div className="rounded-md bg-linear-to-r from-purple-500 to-pink-500 px-2.5 py-0.5 text-xs font-bold text-white md:px-3 md:py-1 md:text-sm">
             {discountBadge}
           </div>
         </Link>
@@ -77,10 +78,10 @@ export function Header({
       )}
       style={{ backgroundColor: "rgb(23, 31, 38)" }}
     >
-      <div className="flex items-center justify-between gap-4 px-4">
+      <div className="flex flex-col gap-3 px-4 md:flex-row md:items-center md:justify-between md:gap-4">
         {showSearch ? (
-          <div className="flex-1 max-w-xl relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+          <div className="relative w-full flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               value={searchValue}
@@ -94,7 +95,7 @@ export function Header({
         )}
 
         {showActions && (
-          <div className="flex items-center gap-3">
+          <div className="flex w-full flex-wrap items-stretch gap-2 md:w-auto md:flex-nowrap md:items-center md:justify-end md:gap-3">
             {actions ?? defaultActions}
           </div>
         )}
@@ -110,6 +111,7 @@ function HeaderAction({
   icon,
   iconLabel,
   iconLabelClassName,
+  className,
 }: {
   href?: string
   onClick?: () => void
@@ -117,17 +119,21 @@ function HeaderAction({
   icon: ReactNode
   iconLabel?: string
   iconLabelClassName?: string
+  className?: string
 }) {
   if (href) {
     return (
       <Link
         href={href}
-        className="flex items-center gap-2 bg-slate-900/50 px-4 py-2.5 rounded-lg border border-slate-800 hover:border-slate-700 transition-colors"
+        className={cn(
+          "flex items-center justify-center gap-2 rounded-lg border border-slate-800 bg-slate-900/50 px-4 py-2.5 text-sm transition-colors hover:border-slate-700 md:px-5 md:py-3 md:text-base",
+          className,
+        )}
       >
         {label}
         <div className={cn("flex items-center gap-1.5 text-green-400", iconLabelClassName)}>
           {icon}
-          {iconLabel && <span className="font-medium">{iconLabel}</span>}
+          {iconLabel && <span className="font-medium text-sm md:text-base">{iconLabel}</span>}
         </div>
       </Link>
     )
@@ -136,13 +142,16 @@ function HeaderAction({
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 bg-slate-900/50 px-4 py-2.5 rounded-lg border border-slate-800 hover:border-slate-700 transition-colors"
+      className={cn(
+        "flex items-center justify-center gap-2 rounded-lg border border-slate-800 bg-slate-900/50 px-4 py-2.5 text-sm transition-colors hover:border-slate-700 md:px-5 md:py-3 md:text-base",
+        className,
+      )}
       type="button"
     >
       {label}
       <div className={cn("flex items-center gap-1.5 text-green-400", iconLabelClassName)}>
         {icon}
-        {iconLabel && <span className="font-medium">{iconLabel}</span>}
+        {iconLabel && <span className="font-medium text-sm md:text-base">{iconLabel}</span>}
       </div>
     </button>
   )

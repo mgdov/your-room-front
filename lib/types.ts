@@ -5,6 +5,15 @@ export interface NavigationItem {
     label: string
     Icon: LucideIcon
     isPrimary?: boolean
+    external?: boolean
+    mobileOrder?: number
+}
+
+export interface FooterNavigationItem {
+    href: string
+    label: string
+    Icon: LucideIcon
+    external?: boolean
 }
 
 export interface Network {

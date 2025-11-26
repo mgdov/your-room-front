@@ -1,43 +1,141 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import type { LucideIcon } from "lucide-react"
-import { sidebarNavigation } from "@/lib/navigation"
+import {
+  ChevronRight,
+  LayoutGrid,
+  Plus,
+  ShoppingCart,
+  X,
+} from "lucide-react"
+import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { footerNavigation, sidebarNavigation } from "@/lib/navigation"
 import { cn } from "@/lib/utils"
 
 export default function Sidebar() {
   const pathname = usePathname()
-  return (
-    <aside
-      className="flex w-64 shrink-0 border-r border-slate-800 p-6 sticky top-0 h-screen flex-col"
-      style={{ backgroundColor: "rgb(23, 31, 38)" }}
-    >
-      <Link href="/" className="flex items-center gap-2 mb-8 hover:opacity-80 transition-opacity">
-        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" aria-hidden="true">
-            <path
-              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-              fill="black"
-            />
-          </svg>
-        </div>
-        <span className="font-bold text-white text-lg">HYPERLIKE</span>
-      </Link>
+  const [menuOpen, setMenuOpen] = useState(false)
 
-      <nav className="space-y-3 flex-1 w-full">
-        {sidebarNavigation.map((item) => (
-          <SidebarNavItem
-            key={item.href}
-            href={item.href}
-            label={item.label}
-            Icon={item.Icon}
-            active={pathname === item.href}
-            isPrimary={item.isPrimary}
-          />
-        ))}
-      </nav>
-    </aside>
+  const mobileNav = [
+    {
+      key: "orders",
+      href: "/orders/all",
+      label: "Заказы",
+      Icon: ShoppingCart,
+      isActive: pathname.startsWith("/orders"),
+    },
+    {
+      key: "create",
+      href: "/",
+      label: "Заказать",
+      Icon: Plus,
+      isActive: pathname === "/" || pathname.startsWith("/order"),
+    },
+  ]
+
+  return (
+    <>
+      <aside
+        className="hidden md:flex w-64 shrink-0 border-r border-slate-800 p-6 sticky top-0 h-screen flex-col"
+        style={{ backgroundColor: "rgb(23, 31, 38)" }}
+      >
+        <Link href="/" className="flex items-center gap-2 mb-8 hover:opacity-80 transition-opacity">
+          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" aria-hidden="true">
+              <path
+                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                fill="black"
+              />
+            </svg>
+          </div>
+          <span className="font-bold text-white text-lg">HYPERLIKE</span>
+        </Link>
+
+        <nav className="space-y-3 flex-1 w-full">
+          {sidebarNavigation.map((item) => (
+            <SidebarNavItem
+              key={item.href}
+              href={item.href}
+              label={item.label}
+              Icon={item.Icon}
+              active={pathname === item.href}
+              isPrimary={item.isPrimary}
+            />
+          ))}
+        </nav>
+      </aside>
+
+      <MobileNav
+        items={mobileNav}
+        onMenuClick={() => setMenuOpen(true)}
+        menuActive={menuOpen}
+      />
+
+      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+        <SheetContent
+          side="bottom"
+          className="bg-[rgb(23,31,38)] border-t border-slate-800 text-white p-6 pb-8 md:hidden"
+        >
+          <SheetHeader className="mb-4 flex-row items-center justify-between gap-3 p-0">
+            <SheetTitle className="text-lg font-semibold text-white">Меню</SheetTitle>
+            <SheetClose className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-800 text-slate-300 transition-colors hover:border-slate-700 hover:text-white">
+              <X className="h-4 w-4" />
+              <span className="sr-only">Закрыть меню</span>
+            </SheetClose>
+          </SheetHeader>
+          <nav className="space-y-3">
+            <div className="space-y-2">
+              {sidebarNavigation
+                .filter((item) => !item.external && !item.isPrimary)
+                .sort((a, b) => (a.mobileOrder ?? 99) - (b.mobileOrder ?? 99))
+                .map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMenuOpen(false)}
+                    className={cn(
+                      "flex items-center justify-between rounded-lg border border-slate-800 px-4 py-3 transition-colors",
+                      pathname === item.href
+                        ? "bg-slate-800 text-white"
+                        : "text-slate-300 hover:bg-slate-800/60 hover:text-white",
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <item.Icon className="w-5 h-5" />
+                      <span className="font-medium text-sm">{item.label}</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-500" />
+                  </Link>
+                ))}
+            </div>
+
+            <div className="border-t border-slate-800/60 pt-3 space-y-2">
+              {footerNavigation.map((link) => {
+                const Comp = link.external ? "a" : Link
+
+                return (
+                  <Comp
+                    key={link.href}
+                    href={link.href}
+                    {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                    className="flex items-center justify-between rounded-lg border border-slate-800 px-4 py-3 text-slate-300 transition-colors hover:bg-slate-800/60 hover:text-white"
+                  >
+                    <div className="flex items-center gap-3">
+                      <link.Icon className="w-5 h-5" />
+                      <span className="font-medium text-sm">{link.label}</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-500" />
+                  </Comp>
+                )
+              })}
+            </div>
+          </nav>
+        </SheetContent>
+      </Sheet>
+    </>
   )
 }
 
@@ -67,5 +165,55 @@ function SidebarNavItem({ href, label, Icon, active, isPrimary }: SidebarNavItem
       <Icon className="w-5 h-5" />
       <span className="font-medium text-sm">{label}</span>
     </Link>
+  )
+}
+
+interface MobileNavProps {
+  items: Array<{
+    key: string
+    href: string
+    label: string
+    Icon: LucideIcon
+    isActive: boolean
+  }>
+  onMenuClick: () => void
+  menuActive: boolean
+}
+
+function MobileNav({ items, onMenuClick, menuActive }: MobileNavProps) {
+  return (
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-slate-800 bg-[rgb(23,31,38)]/95 backdrop-blur">
+      <div className="mx-auto flex max-w-3xl items-center justify-around px-4 py-2">
+        {items.map((item) => (
+          <Link
+            key={item.key}
+            href={item.href}
+            className={cn(
+              "flex flex-col items-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              item.isActive
+                ? "text-green-400"
+                : "text-slate-400 hover:text-slate-200",
+            )}
+          >
+            <item.Icon className="h-5 w-5" />
+            <span>{item.label}</span>
+          </Link>
+        ))}
+
+        <button
+          type="button"
+          onClick={onMenuClick}
+          className={cn(
+            "flex flex-col items-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+            menuActive
+              ? "text-green-400"
+              : "text-slate-400 hover:text-slate-200",
+          )}
+        >
+          <LayoutGrid className="h-5 w-5" />
+          <span>Меню</span>
+        </button>
+      </div>
+    </div>
   )
 }

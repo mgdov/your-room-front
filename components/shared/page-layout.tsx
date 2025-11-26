@@ -39,7 +39,7 @@ export function PageLayout({
             {showSidebar && <Sidebar />}
             <div className="flex-1 overflow-auto flex flex-col">
                 {showHeader && <Header {...headerProps} />}
-                <div className={cn("p-6 flex-1", containerClassName)}>
+                <div className={cn("p-6 pb-28 md:pb-6 flex-1", containerClassName)}>
                     <div className={cn("w-full", maxWidthClass, contentClassName)}>{children}</div>
                 </div>
                 {showFooter && <Footer />}
