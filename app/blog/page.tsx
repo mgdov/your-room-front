@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { PageLayout, PageTitle, Card } from "@/components/shared"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useMemo, useState } from "react"
+import { PageLayout, PageTitle, EmptyState } from "@/components/shared"
+import { ChevronLeft, ChevronRight, Newspaper } from "lucide-react"
 
 interface BlogPost {
   id: number
@@ -10,162 +10,61 @@ interface BlogPost {
   description: string
   date: string
   category: string
+  href?: string
 }
-
-const ALL_BLOG_POSTS: BlogPost[] = [
-  {
-    id: 1,
-    title: "Что делать, если ваш Telegram-канал получил пометку «накрутка / скам»",
-    description:
-      "Просмотры лесенкой Купить Метка «скам» или «накрутка» в Telegram — неприятный сигнал для любого владельца канала.",
-    date: "11 октября 14:24",
-    category: "Подробнее",
-  },
-  {
-    id: 2,
-    title: "Накрутка рефералов OneWin в Telegram — быстрый старт и рост дохода",
-    description: "Рефералы OneWin Купить Накрутка рефералов OneWin — это эффективный способ быстро увеличить доход.",
-    date: "10 октября 23:18",
-    category: "Подробнее",
-  },
-  {
-    id: 3,
-    title: "Рейтинг пользователей Telegram: зачем он нужен и как работает",
-    description:
-      "Рейтинг в Telegram - это важный показатель вашей репутации в мессенджере. Узнайте, как он формируется.",
-    date: "31 июля 23:05",
-    category: "Подробнее",
-  },
-  {
-    id: 4,
-    title: "Накрутка лайков на видео YouTube",
-    description:
-      "YouTube лайки Купить Лайки под видео YouTube — один из ключевых сигналов для алгоритмов и зрителей.",
-    date: "21 апреля 19:26",
-    category: "Подробнее",
-  },
-  {
-    id: 5,
-    title: "Накрутка подписчиков в Телеграм",
-    description:
-      "Телеграм подписчики Купить Телеграм — это платформа, где сегодня развиваются сообщества, строится доверие.",
-    date: "21 апреля 19:26",
-    category: "Подробнее",
-  },
-  {
-    id: 6,
-    title: "Раскрутка YouTube-канала",
-    description:
-      "YouTube просмотры Купить YouTube подписчики Купить Успех на YouTube складывается из многих факторов.",
-    date: "21 апреля 19:26",
-    category: "Подробнее",
-  },
-  {
-    id: 7,
-    title: "Накрутка зрителей на стрим YouTube",
-    description: "YouTube просмотры Купить Проводите прямые эфиры на YouTube и хотите выглядеть популярнее?",
-    date: "21 апреля 19:25",
-    category: "Подробнее",
-  },
-  {
-    id: 8,
-    title: "Накрутка реакций в Телеграм",
-    description: "Телеграм реакции Купить Реакции в Телеграм — это не просто эмоции, это показатель вовлечённости.",
-    date: "21 апреля 19:24",
-    category: "Подробнее",
-  },
-  {
-    id: 9,
-    title: "Накрутка просмотров в YouTube",
-    description:
-      "YouTube просмотры Купить Каждое видео на YouTube требует первых просмотров — это запускает цепочку органического продвижения.",
-    date: "21 апреля 19:24",
-    category: "Подробнее",
-  },
-  {
-    id: 10,
-    title: "Накрутка голосов в телеграм канале",
-    description: "Telegram голоса Купить Проводите опрос в Телеграм и хотите набрать больше голосов?",
-    date: "21 апреля 19:24",
-    category: "Подробнее",
-  },
-  {
-    id: 11,
-    title: "Накрутка подписчиков в YouTube",
-    description:
-      "YouTube подписчики Купить Количество подписчиков на YouTube — ключевой фактор доверия, продвижения и монетизации.",
-    date: "21 апреля 19:23",
-    category: "Подробнее",
-  },
-  {
-    id: 12,
-    title: "Накрутка комментариев в Телеграм",
-    description:
-      "Telegram комментарии Купить Комментарии в Телеграм — это важный индикатор жизни в канале.",
-    date: "21 апреля 19:23",
-    category: "Подробнее",
-  },
-  {
-    id: 13,
-    title: "Накрутка подписок в Инстаграм",
-    description:
-      "Инстаграм подписки Купить Накрутка подписок Инстаграм — это стратегия, когда ваш аккаунт подписывается на других пользователей.",
-    date: "21 апреля 19:23",
-    category: "Подробнее",
-  },
-  {
-    id: 14,
-    title: "Накрутка подписчиков в ВК",
-    description:
-      "ВКонтакте подписчики Купить Количество подписчиков в ВКонтакте напрямую влияет на доверие аудитории.",
-    date: "21 апреля 19:22",
-    category: "Подробнее",
-  },
-  {
-    id: 15,
-    title: "Накрутка комментариев в Instagram",
-    description:
-      "Instagram комментарии Купить Комментарии — это один из самых ценных видов активности в Instagram.",
-    date: "21 апреля 19:22",
-    category: "Подробнее",
-  },
-]
 
 const POSTS_PER_PAGE = 10
 
 export default function BlogPage() {
+  const [posts] = useState<BlogPost[]>([])
   const [currentPage, setCurrentPage] = useState(1)
 
-  const totalPages = Math.ceil(ALL_BLOG_POSTS.length / POSTS_PER_PAGE)
+  const totalPages = posts.length ? Math.ceil(posts.length / POSTS_PER_PAGE) : 0
   const startIndex = (currentPage - 1) * POSTS_PER_PAGE
   const endIndex = startIndex + POSTS_PER_PAGE
-  const currentPosts = ALL_BLOG_POSTS.slice(startIndex, endIndex)
+  const currentPosts = useMemo(() => posts.slice(startIndex, endIndex), [posts, startIndex, endIndex])
 
   const goToPage = (page: number) => {
     setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    window.scrollTo({ top: 0, behavior: "smooth" })
   }
+
+  const showPlaceholder = posts.length === 0
 
   return (
     <PageLayout>
-      <h1 className="text-4xl font-bold mb-8">Новости</h1>
+      <PageTitle
+        title="Новости"
+        subtitle="Раздел обновится после публикации материалов в админ-панели"
+      />
 
-      <div className="space-y-6 mb-8">
-        {currentPosts.map((post) => (
-          <article
-            key={post.id}
-            className="border-b border-slate-800 pb-6 hover:opacity-80 transition-opacity cursor-pointer"
-          >
-            <h2 className="text-xl font-bold mb-3 text-white">{post.title}</h2>
-            <div className="flex items-center justify-between">
-              <button className="text-green-500 hover:text-green-400 font-medium text-sm">
-                {post.category}
-              </button>
-              <span className="text-slate-500 text-sm">{post.date}</span>
-            </div>
-          </article>
-        ))}
-      </div>
+      {showPlaceholder ? (
+        <>
+          <BlogListPlaceholder />
+          <EmptyState
+            icon={<Newspaper className="h-6 w-6" />}
+            message="Здесь появятся новости, как только они будут опубликованы в админ-панели."
+          />
+        </>
+      ) : (
+        <div className="space-y-6 mb-8">
+          {currentPosts.map((post) => (
+            <article
+              key={post.id}
+              className="border-b border-slate-800 pb-6 hover:opacity-80 transition-opacity cursor-pointer"
+            >
+              <h2 className="text-xl font-bold mb-3 text-white">{post.title}</h2>
+              <p className="text-slate-400 mb-4 line-clamp-3">{post.description}</p>
+              <div className="flex items-center justify-between">
+                <button className="text-green-500 hover:text-green-400 font-medium text-sm">
+                  {post.category}
+                </button>
+                <span className="text-slate-500 text-sm">{post.date}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
 
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
@@ -200,5 +99,22 @@ export default function BlogPage() {
         </div>
       )}
     </PageLayout>
+  )
+}
+
+function BlogListPlaceholder() {
+  return (
+    <div className="space-y-6 mb-8">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <article key={index} className="border-b border-slate-800 pb-6">
+          <div className="h-6 w-3/4 rounded bg-slate-800/60 animate-pulse" />
+          <div className="mt-4 h-4 w-full max-w-xl rounded bg-slate-800/40 animate-pulse" />
+          <div className="mt-6 flex items-center justify-between">
+            <div className="h-4 w-24 rounded bg-slate-800/50 animate-pulse" />
+            <div className="h-4 w-32 rounded bg-slate-800/50 animate-pulse" />
+          </div>
+        </article>
+      ))}
+    </div>
   )
 }

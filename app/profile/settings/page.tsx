@@ -1,15 +1,71 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { Eye, EyeOff, Copy } from "lucide-react"
 import { PageLayout } from "@/components/shared"
 import Link from "next/link"
+import { formatCurrency } from "@/lib/utils"
+
+interface ProfileSettingsData {
+  username: string
+  email: string
+  apiToken: string
+  referralLink: string
+}
+
+interface PasswordFormState {
+  current: string
+  next: string
+}
+
+interface ProfileStats {
+  totalOrders: number | null
+  totalSpent: number | null
+  invited: number | null
+  monthEarned: number | null
+  totalEarned: number | null
+}
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("settings")
   const [showOldPassword, setShowOldPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [endOldSessions, setEndOldSessions] = useState(false)
+  const [profileSettings, setProfileSettings] = useState<ProfileSettingsData>({
+    username: "",
+    email: "",
+    apiToken: "",
+    referralLink: "",
+  })
+  const [passwordForm, setPasswordForm] = useState<PasswordFormState>({
+    current: "",
+    next: "",
+  })
+  const [stats] = useState<ProfileStats>({
+    totalOrders: null,
+    totalSpent: null,
+    invited: null,
+    monthEarned: null,
+    totalEarned: null,
+  })
+
+  const handleCopy = useCallback((value: string) => {
+    if (!value) return
+
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(value).catch(() => null)
+    }
+  }, [])
+
+  const maskToken = useCallback((token: string) => {
+    if (!token) return "—"
+    return token.length <= 12 ? token : `${token.slice(0, 6)}…${token.slice(-6)}`
+  }, [])
+
+  const formatCurrencyOrDash = useCallback((value: number | null) => {
+    if (value === null) return "—"
+    return formatCurrency(value)
+  }, [])
 
   return (
     <PageLayout>
@@ -53,8 +109,18 @@ export default function ProfilePage() {
                 <h2 className="text-xl font-bold mb-4">Логин</h2>
                 <div className="mb-4">
                   <div className="flex items-center justify-between bg-slate-800 rounded-lg px-4 py-3 border border-slate-700">
-                    <span className="text-white">umar2007</span>
-                    <button className="text-purple-400 hover:text-purple-300">
+                    {profileSettings.username ? (
+                      <span className="text-white">{profileSettings.username}</span>
+                    ) : (
+                      <span className="inline-flex h-4 w-24 rounded bg-slate-700/60 animate-pulse" aria-hidden="true" />
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(profileSettings.username)}
+                      disabled={!profileSettings.username}
+                      className="text-purple-400 hover:text-purple-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                      aria-label="Скопировать логин"
+                    >
                       <Copy className="w-4 h-4" />
                     </button>
                   </div>
@@ -65,7 +131,10 @@ export default function ProfilePage() {
                   <div className="relative">
                     <input
                       type={showOldPassword ? "text" : "password"}
-                      defaultValue="password123"
+                      value={passwordForm.current}
+                      onChange={(event) =>
+                        setPasswordForm((prev) => ({ ...prev, current: event.target.value }))
+                      }
                       className="w-full bg-slate-800 text-white rounded-lg px-4 py-3 pr-12 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
                     <button
@@ -82,7 +151,10 @@ export default function ProfilePage() {
                   <div className="relative">
                     <input
                       type={showNewPassword ? "text" : "password"}
-                      defaultValue="password123"
+                      value={passwordForm.next}
+                      onChange={(event) =>
+                        setPasswordForm((prev) => ({ ...prev, next: event.target.value }))
+                      }
                       className="w-full bg-slate-800 text-white rounded-lg px-4 py-3 pr-12 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
                     <button
@@ -106,7 +178,7 @@ export default function ProfilePage() {
                   </label>
                 </div>
 
-                <button className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-lg font-medium transition-colors">
+                <button type="button" className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-lg font-medium transition-colors">
                   Сохранить
                 </button>
               </div>
@@ -118,12 +190,16 @@ export default function ProfilePage() {
                 <div className="mb-4">
                   <input
                     type="email"
-                    defaultValue="tadzhibov.umar07@gmail.com"
+                    value={profileSettings.email}
+                    onChange={(event) =>
+                      setProfileSettings((prev) => ({ ...prev, email: event.target.value }))
+                    }
+                    placeholder="Укажите email"
                     className="w-full bg-slate-800 text-white rounded-lg px-4 py-3 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
 
-                <button className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-lg font-medium transition-colors">
+                <button type="button" className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-lg font-medium transition-colors">
                   Сохранить
                 </button>
               </div>
@@ -134,18 +210,32 @@ export default function ProfilePage() {
                 <h3 className="text-lg font-semibold mb-3">Ваш токен</h3>
                 <div className="mb-4">
                   <div className="flex items-center justify-between bg-slate-800 rounded-lg px-4 py-3 border border-slate-700">
-                    <span className="text-white font-mono text-sm">kE76wWAjvaLP...U0Cbs7k18mmO</span>
-                    <button className="text-purple-400 hover:text-purple-300">
+                    {profileSettings.apiToken ? (
+                      <span className="text-white font-mono text-sm">{maskToken(profileSettings.apiToken)}</span>
+                    ) : (
+                      <span className="inline-flex h-4 w-40 max-w-full rounded bg-slate-700/60 animate-pulse" aria-hidden="true" />
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(profileSettings.apiToken)}
+                      disabled={!profileSettings.apiToken}
+                      className="text-purple-400 hover:text-purple-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                      aria-label="Скопировать токен"
+                    >
                       <Copy className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
-                <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors mb-6">
+                <button
+                  type="button"
+                  disabled={!profileSettings.apiToken}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors mb-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   Сменить токен
                 </button>
 
-                <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition-colors">
+                <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition-colors" type="button">
                   Выход
                 </button>
               </div>
@@ -153,7 +243,7 @@ export default function ProfilePage() {
 
             <div className="space-y-4">
               <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-6 text-center">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-linear-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center">
                   <span className="text-3xl">🔑</span>
                 </div>
                 <h3 className="text-xl font-bold mb-2">Google Authenticator</h3>
@@ -163,12 +253,12 @@ export default function ProfilePage() {
               </div>
 
               <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-6 text-center">
-                <div className="text-4xl font-bold mb-2">1 260 935</div>
+                <div className="text-4xl font-bold mb-2">{stats.totalOrders ?? "—"}</div>
                 <div className="text-slate-400">Всего заказов</div>
               </div>
 
               <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-6 text-center">
-                <div className="text-4xl font-bold mb-2">0 ₽</div>
+                <div className="text-4xl font-bold mb-2">{formatCurrencyOrDash(stats.totalSpent)}</div>
                 <div className="text-slate-400">Вы потратили</div>
               </div>
             </div>
@@ -208,7 +298,7 @@ export default function ProfilePage() {
         {activeTab === "referral" && (
           <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-6">
             <div className="flex items-center gap-4 mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
-              <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center shrink-0">
                 <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"></path>
                 </svg>
@@ -226,8 +316,18 @@ export default function ProfilePage() {
             <div className="mb-6">
               <label className="block text-white font-medium mb-3">Ваша ссылка</label>
               <div className="flex items-center justify-between bg-slate-800 rounded-lg px-4 py-3 border border-slate-700">
-                <span className="text-white">https://hyperlike.ru/ref3922273</span>
-                <button className="text-purple-400 hover:text-purple-300">
+                {profileSettings.referralLink ? (
+                  <span className="text-white break-all">{profileSettings.referralLink}</span>
+                ) : (
+                  <span className="inline-flex h-4 w-64 max-w-full rounded bg-slate-700/60 animate-pulse" aria-hidden="true" />
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleCopy(profileSettings.referralLink)}
+                  disabled={!profileSettings.referralLink}
+                  className="text-purple-400 hover:text-purple-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                  aria-label="Скопировать реферальную ссылку"
+                >
                   <Copy className="w-5 h-5" />
                 </button>
               </div>
@@ -238,17 +338,17 @@ export default function ProfilePage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
                 <div className="text-slate-400 text-sm mb-2">Приглашено</div>
-                <div className="text-white text-3xl font-bold">0</div>
+                <div className="text-white text-3xl font-bold">{stats.invited ?? "—"}</div>
               </div>
 
               <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
                 <div className="text-slate-400 text-sm mb-2">Заработано за месяц</div>
-                <div className="text-white text-3xl font-bold">0 ₽</div>
+                <div className="text-white text-3xl font-bold">{formatCurrencyOrDash(stats.monthEarned)}</div>
               </div>
 
               <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
                 <div className="text-slate-400 text-sm mb-2">Всего заработано</div>
-                <div className="text-white text-3xl font-bold">0 ₽</div>
+                <div className="text-white text-3xl font-bold">{formatCurrencyOrDash(stats.totalEarned)}</div>
               </div>
             </div>
 
@@ -258,7 +358,7 @@ export default function ProfilePage() {
                   <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"></path>
                 </svg>
               </div>
-              <p className="text-white font-medium text-lg">Вы пока не пригласили ни одного реферала</p>
+              <p className="text-white font-medium text-lg">Статистика появится после первых приглашённых пользователей</p>
             </div>
           </div>
         )}
