@@ -220,9 +220,9 @@ export default function OrdersPage() {
                           className="flex items-center justify-between gap-3 text-base text-slate-200"
                         >
                           <span>{setting.label}</span>
-                          <Switch
-                            className="h-8 w-16 rounded-full border border-slate-800/70 bg-slate-800/60 px-1 transition-colors data-[state=checked]:border-[#2FFF61]/60 data-[state=checked]:bg-[#2FFF61]/90 [--switch-thumb-size:1.5rem] [--switch-translate-x:2rem] [--switch-translate-x-unchecked:0.125rem]"
-                            thumbClassName="bg-white shadow-none"
+                            <Switch
+                              className="h-8 w-16 rounded-full border border-slate-800/70 bg-slate-800/60 px-1 transition-colors data-[state=checked]:border-[#2FFF61]/60 data-[state=checked]:bg-[#2FFF61]/90 [--switch-thumb-size:1.5rem] [--switch-translate-x:2rem] [--switch-translate-x-unchecked:0.125rem]"
+                              thumbClassName="bg-white shadow-none"
                             checked={viewSettings[setting.key]}
                             onCheckedChange={(value) => toggleViewSetting(setting.key, value)}
                           />

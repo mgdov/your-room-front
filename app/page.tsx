@@ -1,38 +1,45 @@
-"use client"
+import type { Metadata } from "next"
+import {
+  LandingHero,
+  LandingNavbar,
+  LandingFooter,
+} from "@/components/shared"
+import { LandingContent } from "@/components/shared/landing-content"
 
-import { useState } from "react"
-import { PageLayout } from "@/components/shared"
-import ServiceList from "@/components/service-list"
-import { useNetworks } from "@/hooks/use-networks"
+export const metadata: Metadata = {
+  title: "Hyperlike - Накрутка лайков и подписчиков во всех социальных сетях",
+  description: "Купить накрутку лайков и подписчиков в Instagram, TikTok, Telegram, ВКонтакте и YouTube. Быстрое продвижение, живые подписчики, безопасные методы. Первые 10 подписчиков в подарок!",
+  keywords: "накрутка подписчиков, накрутка лайков, купить подписчиков, продвижение в инстаграм, накрутка тикток, накрутка телеграм",
+  openGraph: {
+    title: "Hyperlike - Накрутка подписчиков и лайков",
+    description: "Быстрое и безопасное продвижение в социальных сетях. Более 100 услуг по выгодным ценам.",
+    type: "website",
+    locale: "ru_RU",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+}
 
-export default function Home() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const { data: networks, isLoading, error, reload } = useNetworks()
-
+export default function LandingPage() {
   return (
-    <PageLayout
-      headerProps={{
-        searchValue: searchQuery,
-        onSearchChange: setSearchQuery,
-      }}
-    >
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Выберите соцсеть</h1>
+    <div className="min-h-screen bg-slate-950 text-white">
+      <div className="relative z-10 flex min-h-screen flex-col">
+        <LandingNavbar />
 
-        {error ? (
-          <div className="bg-red-500/10 border border-red-500/40 text-red-200 rounded-lg p-4">
-            <p className="mb-3">{error}</p>
-            <button
-              onClick={() => reload()}
-              className="px-4 py-2 rounded-lg bg-red-500/20 border border-red-500/40 text-sm hover:bg-red-500/30"
-            >
-              Повторить попытку
-            </button>
-          </div>
-        ) : (
-          <ServiceList searchQuery={searchQuery} networks={networks} isLoading={isLoading} />
-        )}
+        <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 pb-16 pt-8 sm:px-6 sm:pt-12">
+          <LandingHero />
+          <LandingContent />
+        </main>
+
+        <LandingFooter />
       </div>
-    </PageLayout>
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.18),transparent_45%)]"
+      />
+    </div>
   )
 }

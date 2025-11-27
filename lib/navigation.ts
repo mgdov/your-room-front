@@ -2,7 +2,7 @@ import { ArrowUpRight, MessageCircle, BookOpen, Code, Plus, Settings, ShoppingCa
 import type { FooterNavigationItem, NavigationItem } from "./types"
 
 export const sidebarNavigation: NavigationItem[] = [
-    { href: "/", label: "Новый заказ", Icon: Plus, isPrimary: true },
+    { href: "/new-order", label: "Новый заказ", Icon: Plus, isPrimary: true },
     { href: "/orders/all", label: "Мои заказы", Icon: ShoppingCart, isPrimary: true },
     { href: "/blog", label: "Блог", Icon: BookOpen, mobileOrder: 1 },
     { href: "/developer", label: "API", Icon: Code, mobileOrder: 2 },
