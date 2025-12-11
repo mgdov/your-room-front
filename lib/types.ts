@@ -46,3 +46,45 @@ export interface ServiceCatalog {
     networkName: string
     services: ServiceItem[]
 }
+
+// New hierarchical order flow types
+export interface ServiceCategory {
+    id: string
+    name: string
+    slug: string
+    networkId: string
+    iconUrl?: string
+    description?: string
+}
+
+export interface ServicePackage {
+    id: string
+    categoryId: string
+    name: string
+    duration?: string // e.g., "30 дней", "60 дней"
+    price: number
+    originalPrice?: number
+    discount?: number
+    currency: string
+    iconUrl?: string
+    features?: string[]
+    minimum?: number
+    maximum?: number
+    serviceId?: string
+}
+
+export interface OrderCheckout {
+    networkId: string
+    networkName: string
+    categoryId: string
+    categoryName: string
+    packageId: string
+    packageName: string
+    quantity: number
+    price: number
+    totalPrice: number
+    currency: string
+    targetUrl?: string
+    hasPromoCode?: boolean
+    promoCode?: string
+}
